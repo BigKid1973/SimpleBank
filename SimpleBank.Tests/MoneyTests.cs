@@ -8,10 +8,14 @@ namespace SimpleBank.Tests
         public void ShouldCreateMoney()
         {
             // Arrange
+            int amount = 1000;
 
             // Act
+            Money money = new Money(amount);
 
             // Assert
+            Assert.NotNull(money);
+            Assert.Equal(1000, amount);
         }
     }
 }
