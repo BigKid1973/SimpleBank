@@ -40,6 +40,8 @@ namespace SimpleBank.Tests
             Bank bank = new Bank("JustABank");
 
             // Act
+
+            // Something needs to happen here for Dependency Injection
             IAccount account = bank.CreateAccount(person.Object, money.Object);
 
             // Assert
