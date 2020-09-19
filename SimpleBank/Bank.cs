@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -8,12 +9,16 @@ namespace SimpleBank
     [DebuggerDisplay("Bank: Name={this.Name}")]
     public class Bank
     {
-        public Bank(string name)
+        public string Name { get; }
+        private IServiceProvider Services;
+
+        public Bank(string name, IServiceProvider serviceProvider)
         {
             this.Name = name;
+            this.Services = serviceProvider; 
         }
 
-        public string Name { get; }
+
 
         // all Acounts
         private Dictionary<Guid, Dictionary<string, IAccount>> accountsByCustomer = new Dictionary<Guid, Dictionary<string, IAccount>>();
@@ -34,7 +39,8 @@ namespace SimpleBank
                 throw new Exception("Insufficient cash.");
 
             // create new account
-            IAccount account = new Account(initialDeposit, customer);
+            IAccount account = Services.GetService<IAccount>();
+            account.Init(initialDeposit, customer);
 
             // if this customer has no accounts yet - create accounts dict
             if (!accountsByCustomer.ContainsKey(customer.Id))

@@ -3,18 +3,30 @@ using System.Linq.Expressions;
 using System.Linq;
 using Moq;
 using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace SimpleBank.Tests
 {
     public class BankTests
     {
+        private IServiceProvider Services;
+
+        public BankTests()
+        {
+            IServiceCollection serviceCollection = new ServiceCollection();
+            serviceCollection.AddTransient<IAccount, Account>();
+            this.Services = serviceCollection.BuildServiceProvider();
+        }
+    
+
         [Fact]
         public void ShouldCreateBank()
         {
             // Arrange
             string bankName = "Gold";
+
             // Act
-            Bank bank = new Bank(bankName);
+            Bank bank = new Bank(bankName, this.Services);
 
             // Assert
             Assert.NotNull(bank);
@@ -25,7 +37,7 @@ namespace SimpleBank.Tests
         public void ShouldCreateAccount()
         {
             // Arrange
-            
+
             // IMoney money = new Money(1000);
             var money = new Mock<IMoney>();
             money.SetupGet(m => m.Value).Returns(1000);
@@ -37,17 +49,16 @@ namespace SimpleBank.Tests
             person.SetupGet(p => p.Name).Returns("Janet Jackson");
             person.SetupGet(p => p.Id).Returns(guid);
 
-            Bank bank = new Bank("JustABank");
+            Bank bank = new Bank("JustABank", Services);
 
             // Act
-
-            // Something needs to happen here for Dependency Injection
             IAccount account = bank.CreateAccount(person.Object, money.Object);
 
             // Assert
             Assert.NotNull(account);
         }
 
+        
         [Fact]
         public void ShouldCreateAccount_ThrowsExceptionIfNegativeValue()
         {
@@ -55,7 +66,7 @@ namespace SimpleBank.Tests
             Money money = new Money(1000);
             Person person = new Person("Janet Jackson", money);
             Money lessthannomoney = new Money(-1000);
-            Bank bank = new Bank("JustABank");
+            Bank bank = new Bank("JustABank", Services);
 
             // Act & Assert
             Assert.Throws<System.Exception>(() => bank.CreateAccount(person, lessthannomoney)); 
@@ -69,7 +80,7 @@ namespace SimpleBank.Tests
             Money money = new Money(10000);
             Money noMoney = new Money(0);
             Person person = new Person("Janet Jackson", noMoney);
-            Bank bank = new Bank("JustABank");
+            Bank bank = new Bank("JustABank", Services);
 
             // Act & Assert
             Assert.Throws<System.Exception>(() => bank.CreateAccount(person, money));
@@ -81,7 +92,7 @@ namespace SimpleBank.Tests
             // Arrange
             Money money = new Money(10000);
             Person person = new Person("Janet Jackson", money);
-            Bank bank = new Bank("JustABank");
+            Bank bank = new Bank("JustABank", Services);
             IAccount account = bank.CreateAccount(person, money);
 
             // Act
@@ -98,7 +109,7 @@ namespace SimpleBank.Tests
             // Arrange
             Money money = new Money(10000);
             Person person = new Person("Janet Jackson", money);
-            Bank bank = new Bank("JustABank");
+            Bank bank = new Bank("JustABank", Services);
             IAccount account = bank.CreateAccount(person, money);
 
             // Act
@@ -113,7 +124,7 @@ namespace SimpleBank.Tests
             // Arrange
             Money money = new Money(10000);
             Person person = new Person("Janet Jackson", money);
-            Bank bank = new Bank("JustABank");
+            Bank bank = new Bank("JustABank", Services);
             IAccount account = bank.CreateAccount(person, money);
             IAccount account2 = bank.CreateAccount(person, money);
 
@@ -131,7 +142,7 @@ namespace SimpleBank.Tests
             // Arrange
             Money money = new Money(10000);
             Person person = new Person("Janet Jackson", money);
-            Bank bank = new Bank("JustABank");
+            Bank bank = new Bank("JustABank", Services);
             bank.CreateAccount(person, money);
 
             // Act
@@ -147,7 +158,7 @@ namespace SimpleBank.Tests
             // Arrange
             Money money = new Money(10000);
             Person person = new Person("Janet Jackson", money);
-            Bank bank = new Bank("JustABank");
+            Bank bank = new Bank("JustABank", Services);
             bank.CreateAccount(person, money);
 
             // Act
@@ -164,7 +175,7 @@ namespace SimpleBank.Tests
             // Arrange
             Money money = new Money(10000);
             Person person = new Person("Janet Jackson", money);
-            Bank bank = new Bank("JustABank");
+            Bank bank = new Bank("JustABank", Services);
             IAccount account = bank.CreateAccount(person, money);
             IAccount account2 = bank.CreateAccount(person, money);
             Money moaMoney = new Money(200000);
@@ -176,5 +187,6 @@ namespace SimpleBank.Tests
             Assert.Equal(money.Value, account.Amount.Value); // no withdrawal
             Assert.Equal(money.Value, account2.Amount.Value); // no deposit
         }
+        
     }
 }
