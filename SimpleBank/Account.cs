@@ -3,10 +3,21 @@ using System.Diagnostics;
 
 namespace SimpleBank
 {
-    [DebuggerDisplay("Account: Id={this.Id}, Person={this.Owner.Name}, Money={this.Amount.Value}")]
-    public class Account
+    public interface IAccount
     {
-        public Account(Money initialAmount, Person owner)
+        void Withdraw(Money amount);
+        void Deposit(Money amount);
+        string Id { get; }
+
+        IMoney Amount { get; }
+
+        IPerson Owner { get; }
+    }
+
+    [DebuggerDisplay("Account: Id={this.Id}, Person={this.Owner.Name}, Money={this.Amount.Value}")]
+    public class Account : IAccount
+    {
+        public Account(IMoney initialAmount, IPerson owner)
         {
             this.Id = $"CH00-{Guid.NewGuid().ToString("D").ToUpperInvariant()}";
             this.Amount = initialAmount;
@@ -32,10 +43,10 @@ namespace SimpleBank
             Amount = new Money(Amount.Value + amount.Value);
         }
 
-        public string Id { get; }
+        public string Id { get; internal set; }
 
-        public Money Amount { get; internal set; }
+        public IMoney Amount { get; internal set; }
 
-        public Person Owner { get; }
+        public IPerson Owner { get; internal set; }
     }
 }

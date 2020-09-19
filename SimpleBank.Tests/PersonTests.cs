@@ -11,7 +11,8 @@ namespace SimpleBank.Tests
             string Name = "Jane Doe";
 
             // Act
-            Person person = new Person(Name);
+            Money money = new Money(0);
+            Person person = new Person(Name, money);
 
             // Assert
             Assert.NotNull(person);

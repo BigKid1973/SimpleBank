@@ -1,6 +1,8 @@
 using Xunit;
 using System.Linq.Expressions;
 using System.Linq;
+using Moq;
+using System;
 
 namespace SimpleBank.Tests
 {
@@ -23,13 +25,22 @@ namespace SimpleBank.Tests
         public void ShouldCreateAccount()
         {
             // Arrange
-            Person person = new Person( "Janet Jackson" );
-            Money money = new Money(1000);
-            person.Cash = money;
+            
+            // IMoney money = new Money(1000);
+            var money = new Mock<IMoney>();
+            money.SetupGet(m => m.Value).Returns(1000);
+
+            // IPerson person = new Person( "Janet Jackson", money.Object);
+            var person = new Mock<IPerson>();
+            Guid guid = Guid.NewGuid();
+            person.SetupGet(p => p.Cash).Returns(money.Object);
+            person.SetupGet(p => p.Name).Returns("Janet Jackson");
+            person.SetupGet(p => p.Id).Returns(guid);
+
             Bank bank = new Bank("JustABank");
 
             // Act
-            Account account = bank.CreateAccount(person, money);
+            IAccount account = bank.CreateAccount(person.Object, money.Object);
 
             // Assert
             Assert.NotNull(account);
@@ -39,12 +50,13 @@ namespace SimpleBank.Tests
         public void ShouldCreateAccount_ThrowsExceptionIfNegativeValue()
         {
             // Arrange
-            Person person = new Person("Janet Jackson");
-            Money money = new Money(-1000);
+            Money money = new Money(1000);
+            Person person = new Person("Janet Jackson", money);
+            Money lessthannomoney = new Money(-1000);
             Bank bank = new Bank("JustABank");
 
             // Act & Assert
-            Assert.Throws<System.Exception>(() => bank.CreateAccount(person, money)); 
+            Assert.Throws<System.Exception>(() => bank.CreateAccount(person, lessthannomoney)); 
 
         }
 
@@ -52,8 +64,9 @@ namespace SimpleBank.Tests
         public void ShouldCreateAccount_ThrowsExceptionIfInsufficientFunds()
         {
             // Arrange
-            Person person = new Person("Janet Jackson");
             Money money = new Money(10000);
+            Money noMoney = new Money(0);
+            Person person = new Person("Janet Jackson", noMoney);
             Bank bank = new Bank("JustABank");
 
             // Act & Assert
@@ -64,11 +77,10 @@ namespace SimpleBank.Tests
         public void ShouldAccountWithdraw()
         {
             // Arrange
-            Person person = new Person("Janet Jackson");
             Money money = new Money(10000);
-            person.Cash = money;
+            Person person = new Person("Janet Jackson", money);
             Bank bank = new Bank("JustABank");
-            Account account = bank.CreateAccount(person, money);
+            IAccount account = bank.CreateAccount(person, money);
 
             // Act
             bank.Withdraw(account.Id, money);
@@ -82,11 +94,10 @@ namespace SimpleBank.Tests
         public void ShouldAccountDeposit()
         {
             // Arrange
-            Person person = new Person("Janet Jackson");
             Money money = new Money(10000);
-            person.Cash = money;
+            Person person = new Person("Janet Jackson", money);
             Bank bank = new Bank("JustABank");
-            Account account = bank.CreateAccount(person, money);
+            IAccount account = bank.CreateAccount(person, money);
 
             // Act
             bank.Deposit(account.Id, money);
@@ -98,12 +109,11 @@ namespace SimpleBank.Tests
         public void ShouldAccountTransfer()
         {
             // Arrange
-            Person person = new Person("Janet Jackson");
             Money money = new Money(10000);
-            person.Cash = money;
+            Person person = new Person("Janet Jackson", money);
             Bank bank = new Bank("JustABank");
-            Account account = bank.CreateAccount(person, money);
-            Account account2 = bank.CreateAccount(person, money);
+            IAccount account = bank.CreateAccount(person, money);
+            IAccount account2 = bank.CreateAccount(person, money);
 
             // Act
             bank.Transfer(account.Id, account2.Id, money);
@@ -117,9 +127,8 @@ namespace SimpleBank.Tests
         public void ShouldGetAccounts()
         {
             // Arrange
-            Person person = new Person("Janet Jackson");
             Money money = new Money(10000);
-            person.Cash = money;
+            Person person = new Person("Janet Jackson", money);
             Bank bank = new Bank("JustABank");
             bank.CreateAccount(person, money);
 
@@ -130,12 +139,12 @@ namespace SimpleBank.Tests
             Assert.Equal(1, count);
         }
 
+        [Fact]
         public void GetAccountById()
         {
             // Arrange
-            Person person = new Person("Janet Jackson");
             Money money = new Money(10000);
-            person.Cash = money;
+            Person person = new Person("Janet Jackson", money);
             Bank bank = new Bank("JustABank");
             bank.CreateAccount(person, money);
 
@@ -151,12 +160,11 @@ namespace SimpleBank.Tests
         public void ShouldAccountTransfer_ThrowsExceptionIfInsufficientFunds()
         {
             // Arrange
-            Person person = new Person("Janet Jackson");
             Money money = new Money(10000);
-            person.Cash = money;
+            Person person = new Person("Janet Jackson", money);
             Bank bank = new Bank("JustABank");
-            Account account = bank.CreateAccount(person, money);
-            Account account2 = bank.CreateAccount(person, money);
+            IAccount account = bank.CreateAccount(person, money);
+            IAccount account2 = bank.CreateAccount(person, money);
             Money moaMoney = new Money(200000);
 
             // Act & Assert

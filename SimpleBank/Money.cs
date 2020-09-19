@@ -2,8 +2,14 @@
 
 namespace SimpleBank
 {
+    public interface IMoney
+    {
+        decimal Value { get; }
+    }
+
+
     [DebuggerDisplay("Money: Value={this.Value}")]
-    public class Money
+    public class Money : IMoney
     {
         public Money(decimal amount)
         {

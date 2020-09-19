@@ -10,10 +10,10 @@ namespace SimpleBank.Tests
         {
             // Arrange
             Money money = new Money(1000);
-            Person owner = new Person("Jane Doe");
+            Person owner = new Person("Jane Doe", money);
 
             // Act
-            Account account = new Account(money, owner);
+            IAccount account = new Account(money, owner);
 
             // Assert
             Assert.NotNull(account);
@@ -26,8 +26,8 @@ namespace SimpleBank.Tests
         {
             // Arrange
             Money money = new Money(1000);
-            Person owner = new Person("Jane Doe");
-            Account account = new Account(money, owner);
+            Person owner = new Person("Jane Doe", money);
+            IAccount account = new Account(money, owner);
 
             // Act
             account.Withdraw(money);
@@ -44,9 +44,9 @@ namespace SimpleBank.Tests
         {
             // Arrange
             Money money = new Money(1000);
-            Person owner = new Person("Jane Doe");
+            Person owner = new Person("Jane Doe", money);
             Money negAmount = new Money(-1000);
-            Account account = new Account(money, owner);
+            IAccount account = new Account(money, owner);
 
             // Act & Assert
             Assert.Throws<System.Exception>(() => account.Withdraw(negAmount));
@@ -57,9 +57,9 @@ namespace SimpleBank.Tests
         {
             // Arrange
             Money money = new Money(1000);
-            Person owner = new Person("Jane Doe");
+            Person owner = new Person("Jane Doe", money);
             Money moreMoney = new Money(2000);
-            Account account = new Account(money, owner);
+            IAccount account = new Account(money, owner);
 
             // Act & Assert
             Assert.Throws<System.Exception>(() => account.Withdraw(moreMoney));
@@ -71,10 +71,10 @@ namespace SimpleBank.Tests
         {
             // Arrange
             Money money = new Money(1000);
-            Person owner = new Person("Jane Doe");
+            Person owner = new Person("Jane Doe", money);
 
             // Act
-            Account account = new Account(money, owner);
+            IAccount account = new Account(money, owner);
             account.Deposit(money);
 
             // Assert
@@ -89,9 +89,9 @@ namespace SimpleBank.Tests
         {
             // Arrange
             Money money = new Money(1000);
-            Person owner = new Person("Jane Doe");
+            Person owner = new Person("Jane Doe", money);
             Money negAmount = new Money(-1000);
-            Account account = new Account(money, owner);
+            IAccount account = new Account(money, owner);
 
             // Act & Assert
             Assert.Throws<System.Exception>(() => account.Deposit(negAmount));

@@ -16,15 +16,14 @@ namespace SimpleBank
         public string Name { get; }
 
         // all Acounts
-        private Dictionary<Guid, Dictionary<string, Account>> accountsByCustomer = new Dictionary<Guid, Dictionary<string, Account>>();
-        private Dictionary<string, Account> accountsById = new Dictionary<string, Account>();
-
+        private Dictionary<Guid, Dictionary<string, IAccount>> accountsByCustomer = new Dictionary<Guid, Dictionary<string, IAccount>>();
+        private Dictionary<string, IAccount> accountsById = new Dictionary<string, IAccount>();
 
         /// <summary>
         ///     Creates a new bank account for the given <see cref="customer" />
         ///     and deposits
         /// </summary>
-        public Account CreateAccount(Person customer, Money initialDeposit)
+        public IAccount CreateAccount(IPerson customer, IMoney initialDeposit)
         {
             // Check if negative amount
             if (initialDeposit.Value < 0)
@@ -35,11 +34,11 @@ namespace SimpleBank
                 throw new Exception("Insufficient cash.");
 
             // create new account
-            Account account = new Account(initialDeposit, customer);
+            IAccount account = new Account(initialDeposit, customer);
 
             // if this customer has no accounts yet - create accounts dict
             if (!accountsByCustomer.ContainsKey(customer.Id))
-                accountsByCustomer.Add(customer.Id, new Dictionary<string, Account>());
+                accountsByCustomer.Add(customer.Id, new Dictionary<string, IAccount>());
 
             // add this account
             accountsByCustomer[customer.Id].Add(account.Id, account);
@@ -63,9 +62,9 @@ namespace SimpleBank
         /// <summary>
         ///     Returns all accounts for a given <see cref="customer" />.
         /// </summary>
-        public IEnumerable<Account> GetAccounts(Person customer)
+        public IEnumerable<IAccount> GetAccounts(Person customer)
         {
-            foreach (Account account in this.accountsByCustomer[customer.Id].Values)
+            foreach (IAccount account in this.accountsByCustomer[customer.Id].Values)
                 yield return account;
 
         }
@@ -77,7 +76,7 @@ namespace SimpleBank
         /// <param name="amount"></param>
         public void Deposit(string targetAccountId, Money amount)
         {
-            Account account = accountsById[targetAccountId];
+            IAccount account = accountsById[targetAccountId];
             account.Deposit(amount);
         }
 
@@ -88,7 +87,7 @@ namespace SimpleBank
         /// <param name="amount"></param>
         public void Withdraw(string sourceAccountId, Money amount)
         {
-            Account account = accountsById[sourceAccountId];
+            IAccount account = accountsById[sourceAccountId];
             account.Withdraw(amount);
 
         }
@@ -99,8 +98,8 @@ namespace SimpleBank
         /// </summary>
         public void Transfer(string sourceAccountId, string targetAccountId, Money amount)
         {
-            Account sourceAcc = accountsById[sourceAccountId];
-            Account targetAcc = accountsById[targetAccountId];
+            IAccount sourceAcc = accountsById[sourceAccountId];
+            IAccount targetAcc = accountsById[targetAccountId];
 
             if (sourceAcc == null || targetAcc == null)
                 throw new Exception("Unkown account");
